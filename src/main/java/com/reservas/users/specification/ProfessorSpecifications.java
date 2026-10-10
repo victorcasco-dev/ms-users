@@ -12,6 +12,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Filtros JPA para profesores (incl. línea de investigación). */
 public final class ProfessorSpecifications {
 
 	private ProfessorSpecifications() {

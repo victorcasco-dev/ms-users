@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+/** Cuerpo de {@code PUT /professors/{id}}. */
 @Getter
 @Setter
 public class ProfessorUpdateRequest {

@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Catálogo compacto para UI (sin paginación). Listado paginado: {@code GET /research-lines}.
+ */
 @RestController
 @RequestMapping("/catalogs/research-lines")
 @RequiredArgsConstructor

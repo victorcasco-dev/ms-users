@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
+/** Consultas de unicidad de {@code studentCode}. */
 @Repository
 @RequiredArgsConstructor
 public class StudentRepository {

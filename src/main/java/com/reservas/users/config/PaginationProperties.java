@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
 @Setter
+/** Tamaño de página por defecto y máximo ({@code app.pagination.*}). */
 @ConfigurationProperties(prefix = "app.pagination")
 public class PaginationProperties {
 

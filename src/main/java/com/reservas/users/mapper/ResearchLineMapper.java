@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
+/** MapStruct: {@link com.reservas.commons.entity.ResearchLine} ↔ {@link com.reservas.commons.dto.CatalogDto}. */
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface ResearchLineMapper {
 

@@ -31,6 +31,9 @@ import org.springframework.util.StringUtils;
 
 import java.util.UUID;
 
+/**
+ * Alta, consulta, búsqueda, actualización y borrado lógico de {@link User} y subtipos.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -45,6 +48,12 @@ public class UserService {
 	private final PageRequestFactory pageRequestFactory;
 	private final PasswordEncoder passwordEncoder;
 
+	/**
+	 * Crea un usuario según {@code type} (STUDENT, PROFESSOR, ADMINISTRATOR).
+	 *
+	 * @param dto datos de alta incl. contraseña en claro (se hashea)
+	 * @return usuario persistido
+	 */
 	@Transactional
 	public UserDto create(UserCreateDto dto) {
 		log.info("Creating user type={} email={}", dto.getType(), dto.getEmail());
@@ -63,12 +72,20 @@ public class UserService {
 		return userMapper.toDto(created);
 	}
 
+	/**
+	 * @param id identificador del usuario
+	 * @return DTO del usuario activo o inactivo
+	 */
 	@Transactional(readOnly = true)
 	public UserDto getById(UUID id) {
 		log.info("Getting user id={}", id);
 		return userMapper.toDto(findOrThrow(id));
 	}
 
+	/**
+	 * @param request filtros y paginación
+	 * @return página de usuarios
+	 */
 	@Transactional(readOnly = true)
 	public UserPageDto search(UserSearchRequest request) {
 		log.info("Searching users type={} email={}", request.getType(), request.getEmail());
@@ -83,6 +100,11 @@ public class UserService {
 		return pageMapper.toUserPage(page);
 	}
 
+	/**
+	 * @param id      usuario a modificar
+	 * @param request campos opcionales; contraseña solo si se envía
+	 * @return usuario actualizado
+	 */
 	@Transactional
 	public UserDto update(UUID id, UserUpdateRequest request) {
 		log.info("Updating user id={}", id);
@@ -98,6 +120,11 @@ public class UserService {
 		return userMapper.toDto(userRepository.save(user));
 	}
 
+	/**
+	 * Borrado lógico Parte #1: {@code active = false}.
+	 *
+	 * @param id usuario a desactivar
+	 */
 	@Transactional
 	public void deleteLogically(UUID id) {
 		log.info("Logical delete user id={}", id);

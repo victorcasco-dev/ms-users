@@ -33,6 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Consulta y actualización de {@link Professor}, vínculo M:N vía {@link ProfessorResearchLineService}
+ * y endpoints anidados bajo {@code /professors}.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProfessorService {
@@ -46,6 +50,7 @@ public class ProfessorService {
 	private final ProfessorResearchLineMapper professorResearchLineMapper;
 	private final PageMapper pageMapper;
 	private final PageRequestFactory pageRequestFactory;
+	private final ProfessorResearchLineService professorResearchLineService;
 
 	@Transactional(readOnly = true)
 	public UserDto getById(UUID id) {
@@ -122,12 +127,7 @@ public class ProfessorService {
 	@Transactional
 	public void removeResearchLine(UUID professorId, UUID detailId) {
 		log.info("Removing research line detail {} from professor {}", detailId, professorId);
-		Professor professor = professorRepository.findDetailedById(professorId)
-				.orElseThrow(() -> new ResourceNotFoundException("Professor not found: " + professorId));
-		ProfessorResearchLine detail = professorResearchLineRepository.findByIdAndProfessorId(detailId, professorId)
-				.orElseThrow(() -> new ResourceNotFoundException("Professor research line not found: " + detailId));
-		professor.removeResearchLine(detail);
-		professorRepository.save(professor);
+		professorResearchLineService.dissociate(professorId, detailId);
 	}
 
 	private Professor findOrThrow(UUID id) {

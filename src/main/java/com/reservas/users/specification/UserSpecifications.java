@@ -13,6 +13,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Filtros JPA para búsqueda de usuarios. */
 public final class UserSpecifications {
 
 	private UserSpecifications() {

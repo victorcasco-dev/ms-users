@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
+/** Filtros de {@code POST /professors/search}. */
 @Getter
 @Setter
 public class ProfessorSearchRequest {

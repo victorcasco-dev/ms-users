@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Carga {@code .env} del directorio de trabajo antes de aplicar {@code application.properties}.
+ */
 public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
 	@Override

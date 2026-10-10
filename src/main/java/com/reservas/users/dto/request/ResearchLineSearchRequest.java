@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 
+/** Filtros de {@code POST /research-lines/search}. */
 @Getter
 @Setter
 public class ResearchLineSearchRequest {

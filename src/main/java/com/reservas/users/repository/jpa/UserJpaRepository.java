@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.UUID;
 
+/** Spring Data JPA para {@link User}. */
 public interface UserJpaRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
 
 	boolean existsByEmailIgnoreCase(String email);

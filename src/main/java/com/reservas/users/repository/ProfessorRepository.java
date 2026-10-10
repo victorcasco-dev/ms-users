@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.UUID;
 
+/** Acceso a datos de {@link com.reservas.commons.entity.Professor}. */
 @Repository
 @RequiredArgsConstructor
 public class ProfessorRepository {

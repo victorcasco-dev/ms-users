@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 import java.util.UUID;
 
+/** Spring Data JPA para {@link Professor}. */
 public interface ProfessorJpaRepository extends JpaRepository<Professor, UUID>, JpaSpecificationExecutor<Professor> {
 
 	boolean existsByEmailIgnoreCaseAndIdNot(String email, UUID id);

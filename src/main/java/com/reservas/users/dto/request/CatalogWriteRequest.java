@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+/** Alta/actualización de línea vía catálogo. */
 @Getter
 @Setter
 public class CatalogWriteRequest {

@@ -26,6 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.util.UUID;
 
+/**
+ * REST de usuarios ({@link com.reservas.commons.entity.User} y subtipos).
+ * DELETE marca {@code active = false} (borrado lógico Parte #1).
+ */
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor

@@ -19,11 +19,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.UUID;
 
+/**
+ * REST del catálogo simple {@link com.reservas.commons.entity.ResearchLine}.
+ */
 @RestController
 @RequestMapping("/research-lines")
 @RequiredArgsConstructor
@@ -40,6 +44,23 @@ public class ResearchLineController {
 		log.info("Incoming POST /research-lines name={}", request.getName());
 		CatalogDto created = researchLineService.create(request);
 		return ResponseEntity.created(URI.create("/research-lines/" + created.getId())).body(created);
+	}
+
+	@GetMapping
+	@Operation(summary = "List research lines with pagination (query parameters)")
+	public CatalogPageDto list(
+			@RequestParam(required = false) Integer page,
+			@RequestParam(required = false) Integer size,
+			@RequestParam(required = false) String name,
+			@RequestParam(required = false) Boolean active
+	) {
+		log.info("Incoming GET /research-lines");
+		ResearchLineSearchRequest request = new ResearchLineSearchRequest();
+		request.setPage(page);
+		request.setSize(size);
+		request.setName(name);
+		request.setActive(active);
+		return researchLineService.search(request);
 	}
 
 	@PostMapping("/search")

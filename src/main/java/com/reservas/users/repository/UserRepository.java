@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.UUID;
 
+/** Acceso a datos de {@link User}. */
 @Repository
 @RequiredArgsConstructor
 public class UserRepository {

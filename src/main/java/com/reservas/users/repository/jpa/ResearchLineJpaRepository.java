@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 import java.util.UUID;
 
+/** Spring Data JPA para {@link ResearchLine}. */
 public interface ResearchLineJpaRepository extends JpaRepository<ResearchLine, UUID>, JpaSpecificationExecutor<ResearchLine> {
 
 	List<ResearchLine> findAllByActiveTrueOrderByNameAsc();

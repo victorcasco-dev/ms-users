@@ -21,12 +21,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * REST de la cabecera {@link com.reservas.commons.entity.Professor} (datos de usuario tipo profesor).
+ */
 @RestController
 @RequestMapping("/professors")
 @RequiredArgsConstructor
@@ -36,6 +40,25 @@ public class ProfessorController {
 	private static final Logger log = LoggerFactory.getLogger(ProfessorController.class);
 
 	private final ProfessorService professorService;
+
+	@GetMapping
+	@Operation(summary = "List professors with pagination (query parameters)")
+	public UserPageDto list(
+			@RequestParam(required = false) Integer page,
+			@RequestParam(required = false) Integer size,
+			@RequestParam(required = false) String name,
+			@RequestParam(required = false) UUID researchLineId,
+			@RequestParam(required = false) Boolean active
+	) {
+		log.info("Incoming GET /professors");
+		ProfessorSearchRequest request = new ProfessorSearchRequest();
+		request.setPage(page);
+		request.setSize(size);
+		request.setName(name);
+		request.setResearchLineId(researchLineId);
+		request.setActive(active);
+		return professorService.search(request);
+	}
 
 	@PostMapping("/search")
 	@Operation(summary = "Search professors with pagination and filters in the request body")

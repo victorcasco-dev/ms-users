@@ -9,6 +9,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Filtros JPA para el catálogo de líneas de investigación. */
 public final class ResearchLineSpecifications {
 
 	private ResearchLineSpecifications() {

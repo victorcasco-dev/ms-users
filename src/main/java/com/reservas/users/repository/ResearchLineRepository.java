@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/** Acceso a datos de {@link com.reservas.commons.entity.ResearchLine}. */
 @Repository
 @RequiredArgsConstructor
 public class ResearchLineRepository {

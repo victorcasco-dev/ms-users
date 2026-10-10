@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+/** MapStruct: filas M:N {@link ProfessorResearchLine} ↔ DTO. */
 @Mapper(
 		componentModel = "spring",
 		uses = ResearchLineMapper.class,

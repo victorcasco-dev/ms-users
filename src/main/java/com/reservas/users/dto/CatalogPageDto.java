@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 
+/** Respuesta paginada de catálogo de líneas. */
 @Getter
 @Setter
 public class CatalogPageDto {

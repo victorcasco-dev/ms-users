@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
+/** Spring Data JPA para {@link Student}. */
 public interface StudentJpaRepository extends JpaRepository<Student, UUID> {
 
 	boolean existsByStudentCodeIgnoreCase(String studentCode);

@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+/** Construye {@link org.springframework.data.domain.Pageable} acotado por configuración. */
 @Component
 @RequiredArgsConstructor
 public class PageRequestFactory {
