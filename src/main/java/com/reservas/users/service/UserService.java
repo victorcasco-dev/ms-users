@@ -10,7 +10,7 @@ import com.reservas.commons.entity.User;
 import com.reservas.commons.exception.BadRequestException;
 import com.reservas.commons.exception.ConflictException;
 import com.reservas.commons.exception.ResourceNotFoundException;
-import com.reservas.users.config.PageRequestFactory;
+import com.reservas.commons.pagination.PageRequestFactory;
 import com.reservas.users.dto.request.UserSearchRequest;
 import com.reservas.users.dto.request.UserUpdateRequest;
 import com.reservas.users.mapper.PageMapper;

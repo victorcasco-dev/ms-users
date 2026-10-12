@@ -5,7 +5,7 @@ import com.reservas.commons.entity.Professor;
 import com.reservas.commons.entity.ProfessorResearchLine;
 import com.reservas.commons.enums.ExperienceLevel;
 import com.reservas.commons.exception.ResourceNotFoundException;
-import com.reservas.users.config.PageRequestFactory;
+import com.reservas.commons.pagination.PageRequestFactory;
 import com.reservas.users.dto.ProfessorResearchLinePageDto;
 import com.reservas.users.dto.request.ProfessorResearchLineSearchRequest;
 import com.reservas.users.dto.request.ProfessorResearchLineUpdateRequest;

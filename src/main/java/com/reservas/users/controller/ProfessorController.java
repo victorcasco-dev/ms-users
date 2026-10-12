@@ -6,13 +6,12 @@ import com.reservas.commons.dto.UserDto;
 import com.reservas.commons.dto.UserPageDto;
 import com.reservas.users.dto.request.ProfessorSearchRequest;
 import com.reservas.users.dto.request.ProfessorUpdateRequest;
+import com.reservas.commons.web.BaseController;
 import com.reservas.users.service.ProfessorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,9 +33,7 @@ import java.util.UUID;
 @RequestMapping("/professors")
 @RequiredArgsConstructor
 @Tag(name = "Professors")
-public class ProfessorController {
-
-	private static final Logger log = LoggerFactory.getLogger(ProfessorController.class);
+public class ProfessorController extends BaseController {
 
 	private final ProfessorService professorService;
 
@@ -96,9 +92,7 @@ public class ProfessorController {
 	) {
 		log.info("Incoming POST /professors/{}/research-lines", id);
 		ProfessorResearchLineDto created = professorService.addResearchLine(id, request);
-		return ResponseEntity
-				.created(URI.create("/professors/" + id + "/research-lines/" + created.getId()))
-				.body(created);
+		return created("/professors/" + id + "/research-lines/" + created.getId(), created);
 	}
 
 	@DeleteMapping("/{id}/research-lines/{detailId}")
@@ -106,6 +100,6 @@ public class ProfessorController {
 	public ResponseEntity<Void> removeResearchLine(@PathVariable UUID id, @PathVariable UUID detailId) {
 		log.info("Incoming DELETE /professors/{}/research-lines/{}", id, detailId);
 		professorService.removeResearchLine(id, detailId);
-		return ResponseEntity.noContent().build();
+		return noContent();
 	}
 }

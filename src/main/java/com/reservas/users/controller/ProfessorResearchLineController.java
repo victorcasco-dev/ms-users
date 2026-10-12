@@ -4,13 +4,12 @@ import com.reservas.commons.dto.ProfessorResearchLineDto;
 import com.reservas.users.dto.ProfessorResearchLinePageDto;
 import com.reservas.users.dto.request.ProfessorResearchLineSearchRequest;
 import com.reservas.users.dto.request.ProfessorResearchLineUpdateRequest;
+import com.reservas.commons.web.BaseController;
 import com.reservas.users.service.ProfessorResearchLineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,9 +32,7 @@ import java.util.UUID;
 @RequestMapping("/professor-research-lines")
 @RequiredArgsConstructor
 @Tag(name = "Professor research lines (M:N detail)")
-public class ProfessorResearchLineController {
-
-	private static final Logger log = LoggerFactory.getLogger(ProfessorResearchLineController.class);
+public class ProfessorResearchLineController extends BaseController {
 
 	private final ProfessorResearchLineService professorResearchLineService;
 
@@ -88,6 +85,6 @@ public class ProfessorResearchLineController {
 	public ResponseEntity<Void> delete(@PathVariable UUID id) {
 		log.info("Incoming DELETE /professor-research-lines/{}", id);
 		professorResearchLineService.dissociate(id);
-		return ResponseEntity.noContent().build();
+		return noContent();
 	}
 }

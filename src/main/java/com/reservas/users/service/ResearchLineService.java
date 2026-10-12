@@ -4,7 +4,7 @@ import com.reservas.commons.dto.CatalogDto;
 import com.reservas.commons.entity.ResearchLine;
 import com.reservas.commons.exception.ConflictException;
 import com.reservas.commons.exception.ResourceNotFoundException;
-import com.reservas.users.config.PageRequestFactory;
+import com.reservas.commons.pagination.PageRequestFactory;
 import com.reservas.users.dto.CatalogPageDto;
 import com.reservas.users.dto.request.CatalogWriteRequest;
 import com.reservas.users.dto.request.ResearchLineSearchRequest;

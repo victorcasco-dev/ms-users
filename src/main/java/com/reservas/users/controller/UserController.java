@@ -3,6 +3,7 @@ package com.reservas.users.controller;
 import com.reservas.commons.dto.UserCreateDto;
 import com.reservas.commons.dto.UserDto;
 import com.reservas.commons.dto.UserPageDto;
+import com.reservas.commons.web.BaseController;
 import com.reservas.users.dto.request.UserSearchRequest;
 import com.reservas.users.dto.request.UserUpdateRequest;
 import com.reservas.users.service.UserService;
@@ -10,8 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.UUID;
 
 /**
@@ -34,9 +32,7 @@ import java.util.UUID;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Tag(name = "Users")
-public class UserController {
-
-	private static final Logger log = LoggerFactory.getLogger(UserController.class);
+public class UserController extends BaseController {
 
 	private final UserService userService;
 
@@ -45,7 +41,7 @@ public class UserController {
 	public ResponseEntity<UserDto> create(@Valid @RequestBody UserCreateDto dto) {
 		log.info("Incoming POST /users type={}", dto.getType());
 		UserDto created = userService.create(dto);
-		return ResponseEntity.created(URI.create("/users/" + created.getId())).body(created);
+		return created("/users/" + created.getId(), created);
 	}
 
 	@GetMapping
@@ -89,6 +85,6 @@ public class UserController {
 	public ResponseEntity<Void> delete(@PathVariable UUID id) {
 		log.info("Incoming DELETE /users/{}", id);
 		userService.deleteLogically(id);
-		return ResponseEntity.noContent().build();
+		return noContent();
 	}
 }

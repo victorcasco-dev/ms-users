@@ -4,13 +4,12 @@ import com.reservas.commons.dto.CatalogDto;
 import com.reservas.users.dto.CatalogPageDto;
 import com.reservas.users.dto.request.CatalogWriteRequest;
 import com.reservas.users.dto.request.ResearchLineSearchRequest;
+import com.reservas.commons.web.BaseController;
 import com.reservas.users.service.ResearchLineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.UUID;
 
 /**
@@ -32,9 +30,7 @@ import java.util.UUID;
 @RequestMapping("/research-lines")
 @RequiredArgsConstructor
 @Tag(name = "Research lines")
-public class ResearchLineController {
-
-	private static final Logger log = LoggerFactory.getLogger(ResearchLineController.class);
+public class ResearchLineController extends BaseController {
 
 	private final ResearchLineService researchLineService;
 
@@ -43,7 +39,7 @@ public class ResearchLineController {
 	public ResponseEntity<CatalogDto> create(@Valid @RequestBody CatalogWriteRequest request) {
 		log.info("Incoming POST /research-lines name={}", request.getName());
 		CatalogDto created = researchLineService.create(request);
-		return ResponseEntity.created(URI.create("/research-lines/" + created.getId())).body(created);
+		return created("/research-lines/" + created.getId(), created);
 	}
 
 	@GetMapping
@@ -89,6 +85,6 @@ public class ResearchLineController {
 	public ResponseEntity<Void> delete(@PathVariable UUID id) {
 		log.info("Incoming DELETE /research-lines/{}", id);
 		researchLineService.deleteLogically(id);
-		return ResponseEntity.noContent().build();
+		return noContent();
 	}
 }

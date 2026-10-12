@@ -7,7 +7,7 @@ import com.reservas.commons.entity.Student;
 import com.reservas.commons.exception.BadRequestException;
 import com.reservas.commons.exception.ConflictException;
 import com.reservas.commons.exception.ResourceNotFoundException;
-import com.reservas.users.config.PageRequestFactory;
+import com.reservas.commons.pagination.PageRequestFactory;
 import com.reservas.users.mapper.PageMapper;
 import com.reservas.users.mapper.UserMapper;
 import com.reservas.users.repository.ProfessorRepository;
