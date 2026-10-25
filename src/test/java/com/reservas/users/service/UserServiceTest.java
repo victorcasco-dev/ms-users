@@ -8,6 +8,8 @@ import com.reservas.commons.exception.BadRequestException;
 import com.reservas.commons.exception.ConflictException;
 import com.reservas.commons.exception.ResourceNotFoundException;
 import com.reservas.commons.pagination.PageRequestFactory;
+import com.reservas.users.cache.CacheKeyFactory;
+import com.reservas.users.cache.IndividualCache;
 import com.reservas.users.mapper.PageMapper;
 import com.reservas.users.mapper.UserMapper;
 import com.reservas.users.repository.ProfessorRepository;
@@ -46,6 +48,12 @@ class UserServiceTest {
 	private PageRequestFactory pageRequestFactory;
 	@Mock
 	private PasswordEncoder passwordEncoder;
+	@Mock
+	private RoleService roleService;
+	@Mock
+	private IndividualCache individualCache;
+	@Mock
+	private CacheKeyFactory cacheKeys;
 
 	private UserService userService;
 
@@ -58,7 +66,10 @@ class UserServiceTest {
 				userMapper,
 				pageMapper,
 				pageRequestFactory,
-				passwordEncoder
+				passwordEncoder,
+				roleService,
+				individualCache,
+				cacheKeys
 		);
 	}
 

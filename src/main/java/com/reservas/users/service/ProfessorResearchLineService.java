@@ -6,6 +6,8 @@ import com.reservas.commons.entity.ProfessorResearchLine;
 import com.reservas.commons.enums.ExperienceLevel;
 import com.reservas.commons.exception.ResourceNotFoundException;
 import com.reservas.commons.pagination.PageRequestFactory;
+import com.reservas.users.cache.CacheKeyFactory;
+import com.reservas.users.cache.IndividualCache;
 import com.reservas.users.dto.ProfessorResearchLinePageDto;
 import com.reservas.users.dto.request.ProfessorResearchLineSearchRequest;
 import com.reservas.users.dto.request.ProfessorResearchLineUpdateRequest;
@@ -17,6 +19,9 @@ import com.reservas.users.specification.ProfessorResearchLineSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -42,6 +47,8 @@ public class ProfessorResearchLineService {
 	private final ProfessorResearchLineMapper professorResearchLineMapper;
 	private final PageMapper pageMapper;
 	private final PageRequestFactory pageRequestFactory;
+	private final IndividualCache individualCache;
+	private final CacheKeyFactory cacheKeys;
 
 	/**
 	 * Obtiene una fila de detalle por identificador.
@@ -50,6 +57,7 @@ public class ProfessorResearchLineService {
 	 * @return DTO de la asociación
 	 */
 	@Transactional(readOnly = true)
+	@Cacheable(cacheNames = "professorResearchLines", key = "@cacheKeys.of('professor-research-line', #id)")
 	public ProfessorResearchLineDto getById(UUID id) {
 		log.info("Getting professor research line id={}", id);
 		return professorResearchLineMapper.toDto(findOrThrow(id));
@@ -69,7 +77,13 @@ public class ProfessorResearchLineService {
 				ProfessorResearchLineSpecifications.from(request),
 				pageRequestFactory.from(request.getPage(), request.getSize(), Sort.by("id").ascending())
 		);
-		return pageMapper.toProfessorResearchLinePage(page);
+		ProfessorResearchLinePageDto result = pageMapper.toProfessorResearchLinePage(page);
+		individualCache.putEach(
+				"professorResearchLines",
+				result.getContent(),
+				item -> cacheKeys.of("professor-research-line", item.getId())
+		);
+		return result;
 	}
 
 	/**
@@ -80,12 +94,15 @@ public class ProfessorResearchLineService {
 	 * @return DTO actualizado
 	 */
 	@Transactional
+	@CachePut(cacheNames = "professorResearchLines", key = "@cacheKeys.of('professor-research-line', #id)")
 	public ProfessorResearchLineDto update(UUID id, ProfessorResearchLineUpdateRequest request) {
 		log.info("Updating professor research line id={}", id);
 		ProfessorResearchLine entity = findOrThrow(id);
 		ExperienceLevel level = ExperienceLevel.valueOf(request.getExperienceLevel().name());
 		entity.setExperienceLevel(level);
-		return professorResearchLineMapper.toDto(professorResearchLineRepository.save(entity));
+		ProfessorResearchLineDto dto = professorResearchLineMapper.toDto(professorResearchLineRepository.save(entity));
+		individualCache.evict("professorResearchLines", cacheKeys.of("professor-lines", entity.getProfessor().getId()));
+		return dto;
 	}
 
 	/**
@@ -95,6 +112,7 @@ public class ProfessorResearchLineService {
 	 * @param detailId    identificador de la fila puente
 	 */
 	@Transactional
+	@CacheEvict(cacheNames = "professorResearchLines", allEntries = true)
 	public void dissociate(UUID professorId, UUID detailId) {
 		log.info("Dissociating professor research line detailId={} professorId={}", detailId, professorId);
 		ProfessorResearchLine detail = professorResearchLineRepository.findByIdAndProfessorId(detailId, professorId)
@@ -103,6 +121,7 @@ public class ProfessorResearchLineService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames = "professorResearchLines", allEntries = true)
 	public void dissociate(UUID id) {
 		log.info("Dissociating professor research line id={}", id);
 		dissociateInternal(findOrThrow(id));

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class UserController extends BaseController {
 	private final UserService userService;
 
 	@PostMapping
+	@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 	@Operation(summary = "Register a user (student, professor or administrator)")
 	public ResponseEntity<UserDto> create(@Valid @RequestBody UserCreateDto dto) {
 		log.info("Incoming POST /users type={}", dto.getType());
@@ -45,6 +47,7 @@ public class UserController extends BaseController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 	@Operation(summary = "List users with pagination (OpenAPI / gateway contract)")
 	public UserPageDto list(
 			@RequestParam(required = false) Integer page,
@@ -60,6 +63,7 @@ public class UserController extends BaseController {
 	}
 
 	@PostMapping("/search")
+	@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 	@Operation(summary = "Search users with pagination and filters in the request body")
 	public UserPageDto search(@Valid @RequestBody UserSearchRequest request) {
 		log.info("Incoming POST /users/search");
@@ -67,6 +71,7 @@ public class UserController extends BaseController {
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 	@Operation(summary = "Get user by id")
 	public UserDto getById(@PathVariable UUID id) {
 		log.info("Incoming GET /users/{}", id);
@@ -74,6 +79,7 @@ public class UserController extends BaseController {
 	}
 
 	@PutMapping("/{id}")
+	@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 	@Operation(summary = "Update user")
 	public UserDto update(@PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request) {
 		log.info("Incoming PUT /users/{}", id);
@@ -81,6 +87,7 @@ public class UserController extends BaseController {
 	}
 
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 	@Operation(summary = "Logical delete user (active = false)")
 	public ResponseEntity<Void> delete(@PathVariable UUID id) {
 		log.info("Incoming DELETE /users/{}", id);

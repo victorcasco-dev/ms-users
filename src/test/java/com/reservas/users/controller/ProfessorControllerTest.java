@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ProfessorController.class)
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @Import(ApiExceptionHandler.class)
 class ProfessorControllerTest {
 

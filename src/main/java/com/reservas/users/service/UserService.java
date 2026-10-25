@@ -11,6 +11,9 @@ import com.reservas.commons.exception.BadRequestException;
 import com.reservas.commons.exception.ConflictException;
 import com.reservas.commons.exception.ResourceNotFoundException;
 import com.reservas.commons.pagination.PageRequestFactory;
+import com.reservas.security.Role;
+import com.reservas.users.cache.CacheKeyFactory;
+import com.reservas.users.cache.IndividualCache;
 import com.reservas.users.dto.request.UserSearchRequest;
 import com.reservas.users.dto.request.UserUpdateRequest;
 import com.reservas.users.mapper.PageMapper;
@@ -22,6 +25,10 @@ import com.reservas.users.specification.UserSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,6 +54,13 @@ public class UserService {
 	private final PageMapper pageMapper;
 	private final PageRequestFactory pageRequestFactory;
 	private final PasswordEncoder passwordEncoder;
+	private final RoleService roleService;
+	private final IndividualCache individualCache;
+	private final CacheKeyFactory cacheKeys;
+
+	public boolean emailExists(String email) {
+		return userRepository.existsByEmail(email);
+	}
 
 	/**
 	 * Crea un usuario según {@code type} (STUDENT, PROFESSOR, ADMINISTRATOR).
@@ -55,6 +69,7 @@ public class UserService {
 	 * @return usuario persistido
 	 */
 	@Transactional
+	@CachePut(cacheNames = "users", key = "@cacheKeys.of('user', #result.id)")
 	public UserDto create(UserCreateDto dto) {
 		log.info("Creating user type={} email={}", dto.getType(), dto.getEmail());
 		validateCreate(dto);
@@ -69,7 +84,12 @@ public class UserService {
 			case ADMINISTRATOR -> userRepository.save(userMapper.toAdministrator(dto, passwordHash));
 			case null -> throw new BadRequestException("type is required");
 		};
-		return userMapper.toDto(created);
+		roleService.assignDefault(created.getId(), Role.valueOf(created.getType().name()));
+		UserDto dtoResult = userMapper.toDto(created);
+		if (created instanceof Professor) {
+			individualCache.put("professors", cacheKeys.of("professor", created.getId()), dtoResult);
+		}
+		return dtoResult;
 	}
 
 	/**
@@ -77,6 +97,7 @@ public class UserService {
 	 * @return DTO del usuario activo o inactivo
 	 */
 	@Transactional(readOnly = true)
+	@Cacheable(cacheNames = "users", key = "@cacheKeys.of('user', #id)")
 	public UserDto getById(UUID id) {
 		log.info("Getting user id={}", id);
 		return userMapper.toDto(findOrThrow(id));
@@ -97,7 +118,9 @@ public class UserService {
 						Sort.by("lastName").ascending().and(Sort.by("firstName").ascending())
 				)
 		);
-		return pageMapper.toUserPage(page);
+		UserPageDto result = pageMapper.toUserPage(page);
+		individualCache.putEach("users", result.getContent(), item -> cacheKeys.of("user", item.getId()));
+		return result;
 	}
 
 	/**
@@ -106,6 +129,7 @@ public class UserService {
 	 * @return usuario actualizado
 	 */
 	@Transactional
+	@CachePut(cacheNames = "users", key = "@cacheKeys.of('user', #id)")
 	public UserDto update(UUID id, UserUpdateRequest request) {
 		log.info("Updating user id={}", id);
 		User user = findOrThrow(id);
@@ -117,7 +141,11 @@ public class UserService {
 			user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 		}
 		updateSubtype(user, request);
-		return userMapper.toDto(userRepository.save(user));
+		UserDto dtoResult = userMapper.toDto(userRepository.save(user));
+		if (user instanceof Professor) {
+			individualCache.put("professors", cacheKeys.of("professor", id), dtoResult);
+		}
+		return dtoResult;
 	}
 
 	/**
@@ -126,6 +154,11 @@ public class UserService {
 	 * @param id usuario a desactivar
 	 */
 	@Transactional
+	@Caching(evict = {
+			@CacheEvict(cacheNames = "users", key = "@cacheKeys.of('user', #id)"),
+			@CacheEvict(cacheNames = "professors", key = "@cacheKeys.of('professor', #id)"),
+			@CacheEvict(cacheNames = "userRoles", key = "@cacheKeys.of('user-roles', #id)")
+	})
 	public void deleteLogically(UUID id) {
 		log.info("Logical delete user id={}", id);
 		User user = findOrThrow(id);

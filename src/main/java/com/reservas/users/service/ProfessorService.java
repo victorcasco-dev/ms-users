@@ -13,6 +13,8 @@ import com.reservas.commons.exception.ConflictException;
 import com.reservas.commons.exception.InvalidOperationException;
 import com.reservas.commons.exception.ResourceNotFoundException;
 import com.reservas.commons.pagination.PageRequestFactory;
+import com.reservas.users.cache.CacheKeyFactory;
+import com.reservas.users.cache.IndividualCache;
 import com.reservas.users.dto.request.ProfessorSearchRequest;
 import com.reservas.users.dto.request.ProfessorUpdateRequest;
 import com.reservas.users.mapper.PageMapper;
@@ -25,6 +27,10 @@ import com.reservas.users.specification.ProfessorSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -51,8 +57,11 @@ public class ProfessorService {
 	private final PageMapper pageMapper;
 	private final PageRequestFactory pageRequestFactory;
 	private final ProfessorResearchLineService professorResearchLineService;
+	private final IndividualCache individualCache;
+	private final CacheKeyFactory cacheKeys;
 
 	@Transactional(readOnly = true)
+	@Cacheable(cacheNames = "professors", key = "@cacheKeys.of('professor', #id)")
 	public UserDto getById(UUID id) {
 		log.info("Getting professor id={}", id);
 		return userMapper.toDto(findOrThrow(id));
@@ -69,10 +78,16 @@ public class ProfessorService {
 						Sort.by("lastName").ascending().and(Sort.by("firstName").ascending())
 				)
 		);
-		return pageMapper.toUserPage(page);
+		UserPageDto result = pageMapper.toUserPage(page);
+		individualCache.putEach("professors", result.getContent(), item -> cacheKeys.of("professor", item.getId()));
+		return result;
 	}
 
 	@Transactional
+	@Caching(put = {
+			@CachePut(cacheNames = "professors", key = "@cacheKeys.of('professor', #id)"),
+			@CachePut(cacheNames = "users", key = "@cacheKeys.of('user', #id)")
+	})
 	public UserDto update(UUID id, ProfessorUpdateRequest request) {
 		log.info("Updating professor id={}", id);
 		Professor professor = findOrThrow(id);
@@ -87,6 +102,7 @@ public class ProfessorService {
 	}
 
 	@Transactional(readOnly = true)
+	@Cacheable(cacheNames = "professorResearchLines", key = "@cacheKeys.of('professor-lines', #professorId)")
 	public List<ProfessorResearchLineDto> listResearchLines(UUID professorId) {
 		log.info("Listing research lines for professor id={}", professorId);
 		findOrThrow(professorId);
@@ -96,6 +112,10 @@ public class ProfessorService {
 	}
 
 	@Transactional
+	@Caching(
+			put = @CachePut(cacheNames = "professorResearchLines", key = "@cacheKeys.of('professor-research-line', #result.id)"),
+			evict = @CacheEvict(cacheNames = "professorResearchLines", key = "@cacheKeys.of('professor-lines', #professorId)")
+	)
 	public ProfessorResearchLineDto addResearchLine(UUID professorId, ProfessorResearchLineCreateDto request) {
 		log.info("Adding research line {} to professor {}", request.getResearchLineId(), professorId);
 		if (request.getResearchLineId() == null) {
@@ -125,6 +145,10 @@ public class ProfessorService {
 	}
 
 	@Transactional
+	@Caching(evict = {
+			@CacheEvict(cacheNames = "professorResearchLines", key = "@cacheKeys.of('professor-lines', #professorId)"),
+			@CacheEvict(cacheNames = "professorResearchLines", key = "@cacheKeys.of('professor-research-line', #detailId)")
+	})
 	public void removeResearchLine(UUID professorId, UUID detailId) {
 		log.info("Removing research line detail {} from professor {}", detailId, professorId);
 		professorResearchLineService.dissociate(professorId, detailId);

@@ -32,6 +32,11 @@ public class UserRepository {
 		return jpa.findAll(specification, pageable);
 	}
 
+	public Optional<User> findByEmailIgnoreCase(String email) {
+		log.debug("Finding user by email");
+		return jpa.findByEmailIgnoreCase(email);
+	}
+
 	public boolean existsByEmail(String email) {
 		log.debug("Checking email uniqueness email={}", email);
 		return jpa.existsByEmailIgnoreCase(email);

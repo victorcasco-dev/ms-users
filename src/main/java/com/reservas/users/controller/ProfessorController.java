@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +39,7 @@ public class ProfessorController extends BaseController {
 	private final ProfessorService professorService;
 
 	@GetMapping
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "List professors with pagination (query parameters)")
 	public UserPageDto list(
 			@RequestParam(required = false) Integer page,
@@ -57,6 +59,7 @@ public class ProfessorController extends BaseController {
 	}
 
 	@PostMapping("/search")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "Search professors with pagination and filters in the request body")
 	public UserPageDto search(@Valid @RequestBody ProfessorSearchRequest request) {
 		log.info("Incoming POST /professors/search");
@@ -64,6 +67,7 @@ public class ProfessorController extends BaseController {
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "Get professor header")
 	public UserDto getById(@PathVariable UUID id) {
 		log.info("Incoming GET /professors/{}", id);
@@ -71,6 +75,7 @@ public class ProfessorController extends BaseController {
 	}
 
 	@PutMapping("/{id}")
+	@PreAuthorize("hasAnyAuthority('PROFESSOR','ADMINISTRATOR')")
 	@Operation(summary = "Update professor header")
 	public UserDto update(@PathVariable UUID id, @Valid @RequestBody ProfessorUpdateRequest request) {
 		log.info("Incoming PUT /professors/{}", id);
@@ -78,6 +83,7 @@ public class ProfessorController extends BaseController {
 	}
 
 	@GetMapping("/{id}/research-lines")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "List professor research-line details")
 	public List<ProfessorResearchLineDto> listResearchLines(@PathVariable UUID id) {
 		log.info("Incoming GET /professors/{}/research-lines", id);
@@ -85,6 +91,7 @@ public class ProfessorController extends BaseController {
 	}
 
 	@PostMapping("/{id}/research-lines")
+	@PreAuthorize("hasAnyAuthority('PROFESSOR','ADMINISTRATOR')")
 	@Operation(summary = "Add a research line to a professor")
 	public ResponseEntity<ProfessorResearchLineDto> addResearchLine(
 			@PathVariable UUID id,
@@ -96,6 +103,7 @@ public class ProfessorController extends BaseController {
 	}
 
 	@DeleteMapping("/{id}/research-lines/{detailId}")
+	@PreAuthorize("hasAnyAuthority('PROFESSOR','ADMINISTRATOR')")
 	@Operation(summary = "Remove a research line from a professor")
 	public ResponseEntity<Void> removeResearchLine(@PathVariable UUID id, @PathVariable UUID detailId) {
 		log.info("Incoming DELETE /professors/{}/research-lines/{}", id, detailId);

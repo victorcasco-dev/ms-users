@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +36,7 @@ public class ResearchLineController extends BaseController {
 	private final ResearchLineService researchLineService;
 
 	@PostMapping
+	@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 	@Operation(summary = "Create a research line")
 	public ResponseEntity<CatalogDto> create(@Valid @RequestBody CatalogWriteRequest request) {
 		log.info("Incoming POST /research-lines name={}", request.getName());
@@ -43,6 +45,7 @@ public class ResearchLineController extends BaseController {
 	}
 
 	@GetMapping
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "List research lines with pagination (query parameters)")
 	public CatalogPageDto list(
 			@RequestParam(required = false) Integer page,
@@ -60,6 +63,7 @@ public class ResearchLineController extends BaseController {
 	}
 
 	@PostMapping("/search")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "Search research lines with pagination and filters in the request body")
 	public CatalogPageDto search(@Valid @RequestBody ResearchLineSearchRequest request) {
 		log.info("Incoming POST /research-lines/search");
@@ -67,6 +71,7 @@ public class ResearchLineController extends BaseController {
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "Get research line by id")
 	public CatalogDto getById(@PathVariable UUID id) {
 		log.info("Incoming GET /research-lines/{}", id);
@@ -74,6 +79,7 @@ public class ResearchLineController extends BaseController {
 	}
 
 	@PutMapping("/{id}")
+	@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 	@Operation(summary = "Update research line")
 	public CatalogDto update(@PathVariable UUID id, @Valid @RequestBody CatalogWriteRequest request) {
 		log.info("Incoming PUT /research-lines/{}", id);
@@ -81,6 +87,7 @@ public class ResearchLineController extends BaseController {
 	}
 
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasAuthority('ADMINISTRATOR')")
 	@Operation(summary = "Logical delete research line (active = false)")
 	public ResponseEntity<Void> delete(@PathVariable UUID id) {
 		log.info("Incoming DELETE /research-lines/{}", id);

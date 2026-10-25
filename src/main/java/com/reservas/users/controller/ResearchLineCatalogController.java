@@ -6,6 +6,7 @@ import com.reservas.users.service.ResearchLineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +25,7 @@ public class ResearchLineCatalogController extends BaseController {
 	private final ResearchLineService researchLineService;
 
 	@GetMapping
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "Research line catalog (OpenAPI contract)")
 	public List<CatalogDto> listActive() {
 		log.info("Incoming GET /catalogs/research-lines");

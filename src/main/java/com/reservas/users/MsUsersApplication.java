@@ -13,7 +13,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
  */
 @SpringBootApplication(exclude = LiquibaseAutoConfiguration.class)
 @EnableDiscoveryClient
-@EntityScan(basePackages = "com.reservas.commons.entity")
+@EntityScan(basePackages = {"com.reservas.commons.entity", "com.reservas.users.security"})
 @EnableConfigurationProperties(PaginationProperties.class)
 public class MsUsersApplication {
 

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,6 +41,7 @@ public class ProfessorResearchLineController extends BaseController {
 	 * Listado paginado vía query string (Parte #1 — GET con paginación).
 	 */
 	@GetMapping
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "List professor–research-line associations with pagination")
 	public ProfessorResearchLinePageDto list(
 			@RequestParam(required = false) Integer page,
@@ -57,6 +59,7 @@ public class ProfessorResearchLineController extends BaseController {
 	}
 
 	@PostMapping("/search")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "Search associations with filters in the request body")
 	public ProfessorResearchLinePageDto search(@Valid @RequestBody ProfessorResearchLineSearchRequest request) {
 		log.info("Incoming POST /professor-research-lines/search");
@@ -64,6 +67,7 @@ public class ProfessorResearchLineController extends BaseController {
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("isAuthenticated()")
 	@Operation(summary = "Get association row by id")
 	public ProfessorResearchLineDto getById(@PathVariable UUID id) {
 		log.info("Incoming GET /professor-research-lines/{}", id);
@@ -71,6 +75,7 @@ public class ProfessorResearchLineController extends BaseController {
 	}
 
 	@PutMapping("/{id}")
+	@PreAuthorize("hasAnyAuthority('PROFESSOR','ADMINISTRATOR')")
 	@Operation(summary = "Update experience level on a detail row")
 	public ProfessorResearchLineDto update(
 			@PathVariable UUID id,
@@ -81,6 +86,7 @@ public class ProfessorResearchLineController extends BaseController {
 	}
 
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasAnyAuthority('PROFESSOR','ADMINISTRATOR')")
 	@Operation(summary = "Dissociate professor and research line (remove bridge row)")
 	public ResponseEntity<Void> delete(@PathVariable UUID id) {
 		log.info("Incoming DELETE /professor-research-lines/{}", id);
