@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -65,7 +67,7 @@ public class ResearchLineService {
 		log.info("Listing active research lines catalog");
 		return researchLineRepository.findAllActive().stream()
 				.map(researchLineMapper::toDto)
-				.toList();
+				.collect(Collectors.toCollection(ArrayList::new)); // tipada para la caché Redis
 	}
 
 	@Transactional(readOnly = true)

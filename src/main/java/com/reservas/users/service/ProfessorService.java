@@ -37,6 +37,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -108,7 +110,7 @@ public class ProfessorService {
 		findOrThrow(professorId);
 		return professorResearchLineRepository.findByProfessorId(professorId).stream()
 				.map(professorResearchLineMapper::toDto)
-				.toList();
+				.collect(Collectors.toCollection(ArrayList::new)); // tipada para la caché Redis
 	}
 
 	@Transactional

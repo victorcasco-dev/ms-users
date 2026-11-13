@@ -16,9 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.EnumSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /** Asignación de roles. Un usuario puede tener más de uno. */
 @Service
@@ -105,7 +107,8 @@ public class RoleService {
 	}
 
 	private static List<String> names(Set<Role> roles) {
-		return roles.stream().map(Role::name).sorted().toList();
+		// ArrayList (no la lista inmutable de toList()): Jackson guarda su tipo y Redis puede leerla de vuelta.
+		return roles.stream().map(Role::name).sorted().collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	private static UserRoleAssignment assignment(UUID userId, Role role) {
