@@ -82,23 +82,23 @@ public class RoleService {
 
 	private void requireUser(UUID userId) {
 		if (userRepository.findById(userId).isEmpty()) {
-			throw new ResourceNotFoundException("User not found: " + userId);
+			throw new ResourceNotFoundException("No se encontró el usuario.");
 		}
 	}
 
 	private static Set<Role> parse(List<String> requested) {
 		if (requested == null || requested.isEmpty()) {
-			throw new BadRequestException("At least one role is required");
+			throw new BadRequestException("Seleccioná al menos un rol.");
 		}
 		EnumSet<Role> roles = EnumSet.noneOf(Role.class);
 		for (String raw : requested) {
 			if (raw == null || raw.isBlank()) {
-				throw new BadRequestException("Role name is required");
+				throw new BadRequestException("El nombre del rol es obligatorio.");
 			}
 			try {
 				roles.add(Role.valueOf(raw.trim().toUpperCase()));
 			} catch (IllegalArgumentException ex) {
-				throw new BadRequestException("Unknown role: " + raw.trim());
+				throw new BadRequestException("Rol desconocido: " + raw.trim());
 			}
 		}
 		return roles;

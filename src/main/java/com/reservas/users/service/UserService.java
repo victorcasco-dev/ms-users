@@ -7,6 +7,7 @@ import com.reservas.commons.entity.Administrator;
 import com.reservas.commons.entity.Professor;
 import com.reservas.commons.entity.Student;
 import com.reservas.commons.entity.User;
+import com.reservas.commons.enums.UserType;
 import com.reservas.commons.exception.BadRequestException;
 import com.reservas.commons.exception.ConflictException;
 import com.reservas.commons.exception.ResourceNotFoundException;
@@ -55,6 +56,7 @@ public class UserService {
 	private final PageRequestFactory pageRequestFactory;
 	private final PasswordEncoder passwordEncoder;
 	private final RoleService roleService;
+	private final UserTypeChanger typeChanger;
 	private final IndividualCache individualCache;
 	private final CacheKeyFactory cacheKeys;
 
@@ -74,7 +76,7 @@ public class UserService {
 		log.info("Creating user type={} email={}", dto.getType(), dto.getEmail());
 		validateCreate(dto);
 		if (userRepository.existsByEmail(dto.getEmail())) {
-			throw new ConflictException("Email already registered: " + dto.getEmail());
+			throw new ConflictException("El correo ya está registrado: " + dto.getEmail());
 		}
 
 		String passwordHash = passwordEncoder.encode(dto.getPassword());
@@ -82,7 +84,7 @@ public class UserService {
 			case STUDENT -> createStudent(dto, passwordHash);
 			case PROFESSOR -> userRepository.save(userMapper.toProfessor(dto, passwordHash));
 			case ADMINISTRATOR -> userRepository.save(userMapper.toAdministrator(dto, passwordHash));
-			case null -> throw new BadRequestException("type is required");
+			case null -> throw new BadRequestException("El tipo de usuario es obligatorio.");
 		};
 		if (dto.getRoles() != null && !dto.getRoles().isEmpty()) {
 			roleService.replace(created.getId(), dto.getRoles());
@@ -138,16 +140,29 @@ public class UserService {
 		log.info("Updating user id={}", id);
 		User user = findOrThrow(id);
 		if (userRepository.existsByEmailAndIdNot(request.getEmail(), id)) {
-			throw new ConflictException("Email already registered: " + request.getEmail());
+			throw new ConflictException("El correo ya está registrado: " + request.getEmail());
 		}
+		UserType previousType = user.getType();
 		userMapper.updateCommon(request, user);
 		if (StringUtils.hasText(request.getPassword())) {
 			user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 		}
-		updateSubtype(user, request);
+		boolean typeChanged = request.getType() != null && request.getType() != previousType;
+		if (typeChanged) {
+			userRepository.save(user);
+			typeChanger.change(id, previousType, request.getType(), request);
+			user = findOrThrow(id);
+			if (previousType == UserType.PROFESSOR) {
+				individualCache.evict("professors", cacheKeys.of("professor", id));
+			}
+		} else {
+			updateSubtype(user, request);
+		}
 		UserDto dtoResult = userMapper.toDto(userRepository.save(user));
 		if (request.getRoles() != null && !request.getRoles().isEmpty()) {
 			roleService.replace(id, request.getRoles());
+		} else if (typeChanged) {
+			roleService.assignDefault(id, Role.valueOf(request.getType().name()));
 		}
 		if (user instanceof Professor) {
 			individualCache.put("professors", cacheKeys.of("professor", id), dtoResult);
@@ -175,10 +190,10 @@ public class UserService {
 
 	private User createStudent(UserCreateDto dto, String passwordHash) {
 		if (!StringUtils.hasText(dto.getStudentCode())) {
-			throw new BadRequestException("studentCode is required for students");
+			throw new BadRequestException("El código de estudiante es obligatorio para un estudiante.");
 		}
 		if (studentRepository.existsByStudentCode(dto.getStudentCode())) {
-			throw new ConflictException("Student code already registered: " + dto.getStudentCode());
+			throw new ConflictException("El código de estudiante ya está registrado: " + dto.getStudentCode());
 		}
 		Professor tutor = resolveTutor(dto.getTutorProfessorId());
 		return userRepository.save(userMapper.toStudent(dto, passwordHash, tutor));
@@ -187,10 +202,10 @@ public class UserService {
 	private void updateSubtype(User user, UserUpdateRequest request) {
 		if (user instanceof Student student) {
 			if (!StringUtils.hasText(request.getStudentCode())) {
-				throw new BadRequestException("studentCode is required for students");
+				throw new BadRequestException("El código de estudiante es obligatorio para un estudiante.");
 			}
 			if (studentRepository.existsByStudentCodeAndIdNot(request.getStudentCode(), student.getId())) {
-				throw new ConflictException("Student code already registered: " + request.getStudentCode());
+				throw new ConflictException("El código de estudiante ya está registrado: " + request.getStudentCode());
 			}
 			student.setStudentCode(request.getStudentCode());
 			student.setTutor(resolveTutor(request.getTutorProfessorId()));
@@ -206,7 +221,7 @@ public class UserService {
 			return null;
 		}
 		return professorRepository.findById(tutorProfessorId)
-				.orElseThrow(() -> new ResourceNotFoundException("Tutor professor not found: " + tutorProfessorId));
+				.orElseThrow(() -> new ResourceNotFoundException("No se encontró el profesor tutor."));
 	}
 
 	private void validateCreate(UserCreateDto dto) {
@@ -214,15 +229,15 @@ public class UserService {
 				|| !StringUtils.hasText(dto.getPassword())
 				|| !StringUtils.hasText(dto.getFirstName())
 				|| !StringUtils.hasText(dto.getLastName())) {
-			throw new BadRequestException("email, password, firstName and lastName are required");
+			throw new BadRequestException("Correo, contraseña, nombre y apellido son obligatorios.");
 		}
 		if (dto.getPassword().length() < 8) {
-			throw new BadRequestException("password must be at least 8 characters");
+			throw new BadRequestException("La contraseña debe tener al menos 8 caracteres.");
 		}
 	}
 
 	private User findOrThrow(UUID id) {
 		return userRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+				.orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario."));
 	}
 }
