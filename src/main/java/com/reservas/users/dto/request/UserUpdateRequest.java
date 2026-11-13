@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 /** Cuerpo de {@code PUT /users/{id}}. */
@@ -27,4 +28,7 @@ public class UserUpdateRequest {
 	private String academicTitle;
 	private String position;
 	private UUID tutorProfessorId;
+
+	/** Roles de acceso. Si viene vacío o nulo se conservan los actuales. */
+	private List<String> roles;
 }

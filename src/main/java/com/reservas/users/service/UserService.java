@@ -84,7 +84,11 @@ public class UserService {
 			case ADMINISTRATOR -> userRepository.save(userMapper.toAdministrator(dto, passwordHash));
 			case null -> throw new BadRequestException("type is required");
 		};
-		roleService.assignDefault(created.getId(), Role.valueOf(created.getType().name()));
+		if (dto.getRoles() != null && !dto.getRoles().isEmpty()) {
+			roleService.replace(created.getId(), dto.getRoles());
+		} else {
+			roleService.assignDefault(created.getId(), Role.valueOf(created.getType().name()));
+		}
 		UserDto dtoResult = userMapper.toDto(created);
 		if (created instanceof Professor) {
 			individualCache.put("professors", cacheKeys.of("professor", created.getId()), dtoResult);
@@ -142,6 +146,9 @@ public class UserService {
 		}
 		updateSubtype(user, request);
 		UserDto dtoResult = userMapper.toDto(userRepository.save(user));
+		if (request.getRoles() != null && !request.getRoles().isEmpty()) {
+			roleService.replace(id, request.getRoles());
+		}
 		if (user instanceof Professor) {
 			individualCache.put("professors", cacheKeys.of("professor", id), dtoResult);
 		}
