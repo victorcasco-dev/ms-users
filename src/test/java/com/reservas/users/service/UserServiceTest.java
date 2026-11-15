@@ -51,6 +51,8 @@ class UserServiceTest {
 	@Mock
 	private RoleService roleService;
 	@Mock
+	private UserTypeChanger typeChanger;
+	@Mock
 	private IndividualCache individualCache;
 	@Mock
 	private CacheKeyFactory cacheKeys;
@@ -68,6 +70,7 @@ class UserServiceTest {
 				pageRequestFactory,
 				passwordEncoder,
 				roleService,
+				typeChanger,
 				individualCache,
 				cacheKeys
 		);

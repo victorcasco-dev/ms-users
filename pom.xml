@@ -14,6 +14,7 @@
 	<groupId>com.reservas</groupId>
 	<artifactId>ms-users</artifactId>
 	<version>1.0.0</version>
+	<packaging>war</packaging>
 	<name>ms-users</name>
 	<description>Users microservice: students, professors, administrators and professor research lines</description>
 
@@ -27,6 +28,12 @@
 	</properties>
 
 	<dependencies>
+		<!-- Tomcat lo provee el servidor cuando se despliega el WAR; java -jar sigue funcionando -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.reservas</groupId>
 			<artifactId>commons</artifactId>
